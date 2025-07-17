@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Pasha</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Verdana', 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            color: white;
+            background: linear-gradient(135deg, #0c2461, #1e3799, #4a69bd);
+        }
+        
+        #video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        #background-video {
+            min-width: 100%;
+            min-height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: brightness(0.6) blur(1px);
+            object-fit: cover;
+        }
+        
+        #content-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .presentation-title {
+            margin-bottom: 30px;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #a8edea, #fed6e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            padding: 10px 30px;
+            border-radius: 20px;
+            background-color: rgba(25, 118, 210, 0.3);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        #text-container {
+            background: linear-gradient(135deg, rgba(25, 118, 210, 0.85), rgba(13, 71, 161, 0.9));
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 1000px;
+            width: 90%;
+            max-height: 55vh;
+            min-height: 300px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #text-display {
+            font-size: 2.3rem;
+            line-height: 1.8;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.2s ease, transform 1.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            white-space: pre-line;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        #text-display.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-top: 30px;
+            background: rgba(25, 118, 210, 0.85);
+            padding: 18px 40px;
+            border-radius: 60px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .control-btn:active {
+            transform: translateY(2px);
+        }
+        
+        .control-btn.active {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        }
+        
+        #progress-container {
+            width: 500px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 25px;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            transition: width 0.5s linear;
+        }
+        
+        .audio-control {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            z-index: 10;
+        }
+        
+        .watermark {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        .floral-decoration {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            opacity: 0.3;
+        }
+        
+        .floral-1 {
+            top: 20px;
+            left: 20px;
+            transform: rotate(15deg);
+        }
+        
+        .floral-2 {
+            bottom: 20px;
+            right: 20px;
+            transform: rotate(-15deg);
+        }
+        
+        @media (max-width: 992px) {
+            #text-display {
+                font-size: 2rem;
+            }
+            
+            .presentation-title {
+                font-size: 2.5rem;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #text-display {
+                font-size: 1.8rem;
+                line-height: 1.7;
+            }
+            
+            .presentation-title {
+                font-size: 2rem;
+                padding: 8px 20px;
+            }
+            
+            #text-container {
+                padding: 30px 20px;
+                max-height: 50vh;
+            }
+            
+            .controls-container {
+                padding: 15px 30px;
+                gap: 15px;
+            }
+            
+            .control-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+            }
+            
+            #progress-container {
+                width: 350px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            #text-display {
+                font-size: 1.6rem;
+                line-height: 1.6;
+            }
+            
+            .presentation-title {
+                font-size: 1.7rem;
+                margin-bottom: 20px;
+            }
+            
+            #text-container {
+                min-height: 250px;
+            }
+            
+            .controls-container {
+                padding: 12px 20px;
+                gap: 10px;
+                border-radius: 50px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            #progress-container {
+                width: 280px;
+                height: 8px;
+            }
+            
+            .audio-control {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .heart {
+            color: #ff6b6b;
+            display: inline-block;
+            margin: 0 10px;
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="background-video" autoplay muted loop>
+            <source src="Chitta.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    
+    <svg class="floral-decoration floral-1" viewBox="0 0 100 100">
+        <path d="M50,10 C60,5 70,15 65,25 C70,35 60,45 50,40 C40,45 30,35 35,25 C30,15 40,5 50,10 Z" fill="#a8edea" />
+        <path d="M50,90 C40,85 30,95 35,85 C30,75 40,65 50,70 C60,65 70,75 65,85 C70,95 60,85 50,90 Z" fill="#fed6e3" />
+        <path d="M10,50 C5,40 15,30 25,35 C35,30 45,40 40,50 C45,60 35,70 25,65 C15,70 5,60 10,50 Z" fill="#4facfe" />
+        <path d="M90,50 C85,60 95,70 85,65 C75,70 65,60 70,50 C65,40 75,30 85,35 C95,30 85,40 90,50 Z" fill="#00f2fe" />
+    </svg>
+    
+    <svg class="floral-decoration floral-2" viewBox="0 0 100 100">
+        <path d="M50,10 C60,5 70,15 65,25 C70,35 60,45 50,40 C40,45 30,35 35,25 C30,15 40,5 50,10 Z" fill="#fed6e3" />
+        <path d="M50,90 C40,85 30,95 35,85 C30,75 40,65 50,70 C60,65 70,75 65,85 C70,95 60,85 50,90 Z" fill="#a8edea" />
+        <path d="M10,50 C5,40 15,30 25,35 C35,30 45,40 40,50 C45,60 35,70 25,65 C15,70 5,60 10,50 Z" fill="#00f2fe" />
+        <path d="M90,50 C85,60 95,70 85,65 C75,70 65,60 70,50 C65,40 75,30 85,35 C95,30 85,40 90,50 Z" fill="#4facfe" />
+    </svg>
+    
+    <button class="audio-control" id="mute-btn">
+        <i class="fas fa-volume-mute"></i>
+    </button>
+    
+    <div id="content-container">
+        <h1 class="presentation-title fade-in">
+            <span class="heart">❤️</span> Again 🎉Happy Birthday🎉 My Beauty Queen 👑 <span class="heart">❤️</span>
+        </h1>
+        
+        <div id="text-container">
+            <div id="text-display"></div>
+        </div>
+        
+        <div class="controls-container">
+            <button class="control-btn" id="prev-btn" title=>
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="control-btn" id="play-btn" title=>
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="pause-btn" title=>
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="control-btn" id="next-btn" title=>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+    
+    <div class="watermark">suruyaat mein khamoshi ko samajhne wale... aant mein cikheen bhi ansuni kr deta hai</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const textDisplay = document.getElementById('text-display');
+            const video = document.getElementById('background-video');
+            const progressBar = document.getElementById('progress-bar');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const playBtn = document.getElementById('play-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const muteBtn = document.getElementById('mute-btn');
+            
+            // Presentation text - divided into 12 slides
+            const slides = [
+                // Slide 1
+                "Abhi bhi din bagi hai janamdin ka\nThora rukogi kya\nKehna hai tumhare bare mein tumse \nZara sunogi kya...",
+                
+                // Slide 2
+                "Kaise bataun me tumhe\nMera liye tum kaun ho\nTum mera dharkano ka geet ho\nJeevan ka tum sangeet ho",
+                
+                // Slide 3
+                "Vivah Rachana caha jisse\nTum meri wahi manpasand preet ho\nTum zindagi tum bandagi\nTum Roshni tum tazgi",
+                
+                // Slide 4
+                "Har Khushi, pyaar tumhi toh manmeet ho\nAankhon mein tum\nYaadon mein tum\nNeedon mein tum\nKhwabon mein tum",
+                
+                // Slide 5
+                "Jaha dekhu mein waha ho tum\nTum ho meri haar baat mein\nTum ho mera din raat mein\nTum subha mein tum shaam mein",
+                
+                // Slide 6
+                "Tum soch mein tum kaam mein\nKuch na kru waha bhi tum\nMera liye pana bhi tum\nMera liye khona bhi tum",
+                
+                // Slide 7
+                "Mera tiye hasna bhi tum\nMera liye rona bhi tum\nAur jagna sona bhi tum\nJau kahi dekhu jise",
+                
+                // Slide 8
+                "Tom ho waha tum ho wahi\nKaise batau mein tumhe\nTum bin toh mein kuch bhi nhi\nTum bin toh mein zinda bhi nhi...",
+                
+                // Slide 9
+                "Mein tumko aasuon se likh raha hun\nKi mera baad koi tumhe padh na paaye\nSuno\nAgar purani wali tum ko pata chalega na",
+                
+                // Slide 10
+                "Ki abhi wali tum mera sath kaise peshaa rhi ho\nDil toot jaega uska\nWoh ladh legi tumse\nWoh jhagar legi tumse",
+                
+                // Slide 11
+                "Mera liye bandh kr degi tumhe\nJaha tumne abi ushe rakha hai\nMujhse iss trha baat nhi krne degi tumhe\nMujhe bhi kuch sochna nhi prega tumhe bolne se pehale",
+                
+                // Slide 12
+                "Lagta hai shikayat krni paregi tumhari\nTumse...\nTumhare diye hua dard se \nZayada bara hai mera kiya hua pyaar\nJao nhi nafrat krni tumse",
+                
+                // Slide 13
+                "Nahi bolna tumhare bare mein bhala bura\nNahi batana tumhara naam aab kisi ko\nKeuki tumhare diye hua dard se\nZayada bara hai tumhe kea hua mera pyaar...",
+
+                // Slide 14
+                "Tum jitna toh koi mujhko khash nahi\nTum jitna toh koi mujhko khash nahi\nTujhse behatar ladka toh mil jaega\nTekin meri Maa se toh behtar koi Saas nhi\nAab thora mushkura bhi do"
+            ];
+
+            
+            let currentIndex = 0;
+            let isPlaying = true;
+            let progressInterval;
+            let progressWidth = 0;
+            const displayDuration = 10000; // 10 seconds
+            
+            // Function to display text
+            function displayText(index) {
+                textDisplay.classList.remove('visible');
+                
+                setTimeout(() => {
+                    textDisplay.textContent = slides[index];
+                    textDisplay.classList.add('visible');
+                    
+                    // Reset progress bar
+                    progressBar.style.width = '0%';
+                    progressWidth = 0;
+                    
+                    // Clear any existing interval
+                    clearInterval(progressInterval);
+                    
+                    // Only animate progress if playing
+                    if (isPlaying) {
+                        progressInterval = setInterval(() => {
+                            if (progressWidth >= 100) {
+                                clearInterval(progressInterval);
+                                nextText();
+                            } else {
+                                progressWidth += 1;
+                                progressBar.style.width = progressWidth + '%';
+                            }
+                        }, displayDuration / 100); // Divide duration by 100 increments
+                    }
+                }, 500); // Half second delay for fade out
+            }
+            
+            // Function to move to next text
+            function nextText() {
+                currentIndex = (currentIndex + 1) % slides.length;
+                displayText(currentIndex);
+            }
+            
+            // Function to move to previous text
+            function prevText() {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                displayText(currentIndex);
+            }
+            
+            // Play function
+            function playPresentation() {
+                if (!isPlaying) {
+                    isPlaying = true;
+                    playBtn.classList.add('active');
+                    pauseBtn.classList.remove('active');
+                    
+                    // Continue progress from current position
+                    progressInterval = setInterval(() => {
+                        if (progressWidth >= 100) {
+                            clearInterval(progressInterval);
+                            nextText();
+                        } else {
+                            progressWidth += 1;
+                            progressBar.style.width = progressWidth + '%';
+                        }
+                    }, displayDuration / 100);
+                }
+            }
+            
+            // Pause function
+            function pausePresentation() {
+                if (isPlaying) {
+                    isPlaying = false;
+                    pauseBtn.classList.add('active');
+                    playBtn.classList.remove('active');
+                    clearInterval(progressInterval);
+                }
+            }
+            
+            // Toggle mute
+            function toggleMute() {
+                video.muted = !video.muted;
+                muteBtn.innerHTML = video.muted ? 
+                    '<i class="fas fa-volume-mute"></i>' : 
+                    '<i class="fas fa-volume-up"></i>';
+            }
+            
+            // Event listeners
+            prevBtn.addEventListener('click', function() {
+                pausePresentation();
+                prevText();
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                pausePresentation();
+                nextText();
+            });
+            
+            playBtn.addEventListener('click', playPresentation);
+            pauseBtn.addEventListener('click', pausePresentation);
+            muteBtn.addEventListener('click', toggleMute);
+            
+            // Initialize presentation
+            displayText(currentIndex);
+            
+            // Auto-advance on spacebar
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space') {
+                    if (isPlaying) {
+                        pausePresentation();
+                    } else {
+                        playPresentation();
+                    }
+                } else if (e.code === 'ArrowLeft') {
+                    pausePresentation();
+                    prevText();
+                } else if (e.code === 'ArrowRight') {
+                    pausePresentation();
+                    nextText();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
